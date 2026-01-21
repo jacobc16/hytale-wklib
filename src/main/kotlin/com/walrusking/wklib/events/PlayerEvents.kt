@@ -8,6 +8,7 @@ import com.hypixel.hytale.server.core.universe.PlayerRef
 import com.hypixel.hytale.server.core.universe.world.storage.EntityStore
 import com.walrusking.wklib.components.Components
 import com.walrusking.wklib.helpers.ensureAndGetComponent
+import com.walrusking.wklib.helpers.getPlayer
 import com.walrusking.wklib.helpers.getWorld
 
 class PlayerEvents {
@@ -71,4 +72,6 @@ class WKPlayerReadyEvent(
 class WKPlayerChatEvent(sender: PlayerRef, targets: List<PlayerRef>, content: String) : PlayerChatEvent(
 	sender, targets,
 	content
-)
+) {
+	val player = sender.getPlayer()
+}
