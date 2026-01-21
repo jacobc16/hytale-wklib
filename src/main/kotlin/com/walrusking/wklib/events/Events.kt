@@ -2,7 +2,7 @@
 
 import com.hypixel.hytale.builtin.adventure.objectives.events.TreasureChestOpeningEvent
 import com.hypixel.hytale.component.ComponentRegistryProxy
-import com.hypixel.hytale.component.system.EntityEventSystem
+import com.hypixel.hytale.component.system.ISystem
 import com.hypixel.hytale.event.EventRegistry
 import com.hypixel.hytale.server.core.event.events.ShutdownEvent
 import com.hypixel.hytale.server.core.event.events.player.*
@@ -60,7 +60,7 @@ class Events {
 			}
 		}
 
-		fun registerSystem(system: EntityEventSystem<EntityStore, *>) {
+		fun registerSystem(system: ISystem<EntityStore>) {
 			entityStoreRegistry?.registerSystem(system)
 		}
 	}
