@@ -4,6 +4,7 @@ import com.hypixel.hytale.server.core.plugin.JavaPlugin
 import com.hypixel.hytale.server.core.plugin.JavaPluginInit
 import com.hypixel.hytale.server.core.util.Config
 import com.walrusking.wklib.config.ConfigUtil
+import com.walrusking.wklib.config.WKConfig
 import com.walrusking.wklib.logging.WKLogger
 import com.walrusking.wklib.utilities.CodecUtil
 
@@ -19,7 +20,7 @@ open class WKPlugin(val pluginName: String, init: JavaPluginInit) : JavaPlugin(i
 		return this.withConfig(ConfigUtil.getConfigName(configName), CodecUtil.buildConfigCodec(T::class.java))
 	}
 
-	inline fun <reified T> getOrCreateConfig(
+	inline fun <reified T : WKConfig> getOrCreateConfig(
 		configName: String,
 		data: T,
 	): Config<T> {
