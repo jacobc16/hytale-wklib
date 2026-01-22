@@ -119,7 +119,7 @@ class TextParser {
 
 						"m", "mono" -> {
 							val inner = parseRecursive(tag)
-							inner.message.formattedMessage.monospace = MaybeBool.True
+							inner.message.monospace(true)
 							messageBuilder = messageBuilder.insert(inner.message)
 							textSb.append(inner.text)
 						}
