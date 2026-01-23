@@ -3,9 +3,12 @@
 import com.hypixel.hytale.codec.Codec
 import com.hypixel.hytale.codec.KeyedCodec
 import com.hypixel.hytale.codec.builder.BuilderCodec
+import com.hypixel.hytale.codec.codecs.map.MapCodec
 import com.walrusking.wklib.components.WKBaseComponent
+import com.walrusking.wklib.logging.WKLogger
 import java.lang.reflect.Field
 import java.lang.reflect.Modifier
+import java.util.*
 import java.util.function.Supplier
 
 class CodecUtil {
@@ -15,7 +18,12 @@ class CodecUtil {
 			val builder = BuilderCodec.builder(clazz, getSupplierInstance(clazz))
 
 			forEachField(clazz, includeSuper = false) { field ->
-				val keyedCodec = getKeyedCodec(field) ?: return@forEachField
+				val fieldType = getFieldType(field)
+				if (fieldType == CodecFieldType.NONE) {
+					return@forEachField
+				}
+
+				val keyedCodec = getKeyedCodec(field, fieldType) ?: return@forEachField
 
 				val fieldBuilder = builder.append(keyedCodec, { instance, value ->
 					try {
@@ -44,7 +52,12 @@ class CodecUtil {
 			val builder = BuilderCodec.builder(clazz, getSupplierInstance(clazz))
 
 			forEachField(clazz, includeSuper = true) { field ->
-				val keyedCodec = getKeyedCodec(field) ?: return@forEachField
+				val fieldType = getFieldType(field)
+				if (fieldType == CodecFieldType.NONE) {
+					return@forEachField
+				}
+
+				val keyedCodec = getKeyedCodec(field, fieldType) ?: return@forEachField
 
 				val fieldBuilder = builder.append(keyedCodec, { instance, value ->
 					try {
@@ -83,43 +96,143 @@ class CodecUtil {
 			}
 		}
 
+		private fun getFieldType(field: Field): CodecFieldType {
+			val type = field.type
+			val codecFieldType = getType(type)
+
+			if (codecFieldType == CodecFieldType.NONE) {
+				val codec = getCodecFromType(field)
+				if (codec != null) {
+					return CodecFieldType.CLASS
+				}
+			}
+
+			return codecFieldType
+		}
+
+		private fun getType(type: Class<*>): CodecFieldType {
+			return when (type) {
+				UUID::class.java -> CodecFieldType.UUID
+				String::class.java -> CodecFieldType.STRING
+				Int::class.javaPrimitiveType, Int::class.javaObjectType -> CodecFieldType.INT
+				Double::class.javaPrimitiveType, Double::class.javaObjectType -> CodecFieldType.DOUBLE
+				Float::class.javaPrimitiveType, Float::class.javaObjectType -> CodecFieldType.FLOAT
+				Long::class.javaPrimitiveType, Long::class.javaObjectType -> CodecFieldType.LONG
+				Boolean::class.javaPrimitiveType, Boolean::class.javaObjectType -> CodecFieldType.BOOLEAN
+				Map::class.java, HashMap::class.java -> CodecFieldType.MAP
+				else -> CodecFieldType.NONE
+			}
+		}
+
 		@Suppress("UNCHECKED_CAST")
-		private fun getKeyedCodec(field: Field): KeyedCodec<Any?>? {
-			val fieldName = field.name.replaceFirstChar { it.uppercaseChar() }
-
-			return when (field.type) {
-				String::class.java -> KeyedCodec(fieldName, Codec.STRING) as KeyedCodec<Any?>
-				Int::class.javaPrimitiveType, Int::class.javaObjectType -> KeyedCodec(
-					fieldName,
-					Codec.INTEGER
-				) as KeyedCodec<Any?>
-
-				Double::class.javaPrimitiveType, Double::class.javaObjectType -> KeyedCodec(
-					fieldName,
-					Codec.DOUBLE
-				) as KeyedCodec<Any?>
-
-				Float::class.javaPrimitiveType, Float::class.javaObjectType -> KeyedCodec(
-					fieldName,
-					Codec.FLOAT
-				) as KeyedCodec<Any?>
-
-				Long::class.javaPrimitiveType, Long::class.javaObjectType -> KeyedCodec(
-					fieldName,
-					Codec.LONG
-				) as KeyedCodec<Any?>
-
-				Boolean::class.javaPrimitiveType, Boolean::class.javaObjectType -> KeyedCodec(
-					fieldName,
-					Codec.BOOLEAN
-				) as KeyedCodec<Any?>
-
+		private fun getCodecType(fieldType: CodecFieldType): Codec<Any?>? {
+			return when (fieldType) {
+				CodecFieldType.UUID -> Codec.STRING as Codec<Any?>
+				CodecFieldType.STRING -> Codec.STRING as Codec<Any?>
+				CodecFieldType.INT -> Codec.INTEGER as Codec<Any?>
+				CodecFieldType.DOUBLE -> Codec.DOUBLE as Codec<Any?>
+				CodecFieldType.FLOAT -> Codec.FLOAT as Codec<Any?>
+				CodecFieldType.LONG -> Codec.LONG as Codec<Any?>
+				CodecFieldType.BOOLEAN -> Codec.BOOLEAN as Codec<Any?>
 				else -> null
 			}
 		}
 
+		@Suppress("UNCHECKED_CAST")
+		private fun getKeyedCodec(field: Field, fieldType: CodecFieldType): KeyedCodec<Any?>? {
+			val fieldName = field.name.replaceFirstChar { it.uppercaseChar() }
+
+			return when (fieldType) {
+				CodecFieldType.CLASS -> {
+					val codec = getCodecFromType(field) ?: return null
+					KeyedCodec(fieldName, codec)
+				}
+
+				CodecFieldType.MAP -> {
+					val codec = getMapCodec(field) ?: return null
+					KeyedCodec(fieldName, codec)
+				}
+
+				else -> {
+					val codec = getCodecType(fieldType) ?: return null
+					KeyedCodec(fieldName, codec)
+				}
+			} as KeyedCodec<Any?>?
+		}
+
+		@Suppress("UNCHECKED_CAST")
+		private fun getCodecFromType(fieldType: Field): Codec<Any?>? {
+			val clazz = fieldType.type
+
+			return buildConfigCodec(clazz) as Codec<Any?>?
+		}
+
+		@Suppress("UNCHECKED_CAST")
+		private fun getMapCodec(field: Field): MapCodec<Any?, HashMap<String, Any?>?>? {
+			val parameterized = field.genericType as? java.lang.reflect.ParameterizedType ?: return null
+			val keyType = parameterized.actualTypeArguments.getOrNull(0)
+			val valueType = parameterized.actualTypeArguments.getOrNull(1)
+
+			val keyClass = keyType as? Class<*> ?: return null
+			val valueClass = valueType as? Class<*> ?: return null
+
+			if (keyClass != String::class.java) {
+				WKLogger("WKLib:CodecUtil").error("Map key type is not String for field ${field.name}")
+				return null
+			}
+
+			val valueCodecType = getType(valueClass)
+			val simpleCodec = getCodecType(valueCodecType)
+			val valueCodec: Codec<Any?>? = when {
+				simpleCodec != null -> simpleCodec
+				valueCodecType == CodecFieldType.MAP -> {
+					WKLogger("WKLib:CodecUtil").warn("Nested collection types not supported for map value for field ${field.name}")
+					return null
+				}
+
+				else -> {
+					buildConfigCodec(valueClass) as Codec<Any?>?
+				}
+			}
+
+			return MapCodec(valueCodec) { HashMap<String, Any?>() }
+		}
+
+
 		private fun <T> getSupplierInstance(clazz: Class<T>): Supplier<T> {
-			return Supplier { clazz.getDeclaredConstructor().newInstance() }
+			if (clazz.isInterface || Modifier.isAbstract(clazz.modifiers)) {
+				val impl: Class<out Any>? = when {
+					List::class.java.isAssignableFrom(clazz) -> ArrayList::class.java
+					Map::class.java.isAssignableFrom(clazz) -> HashMap::class.java
+					Set::class.java.isAssignableFrom(clazz) -> HashSet::class.java
+					Collection::class.java.isAssignableFrom(clazz) -> ArrayList::class.java
+					else -> null
+				}
+
+				if (impl != null) {
+					@Suppress("UNCHECKED_CAST")
+					return Supplier {
+						try {
+							(impl as Class<T>).getDeclaredConstructor().newInstance()
+						} catch (e: Exception) {
+							throw RuntimeException(
+								"Failed to instantiate implementation ${impl.name} for ${clazz.name}",
+								e
+							)
+						}
+					}
+				}
+
+				return Supplier { throw IllegalStateException("No default implementation for ${clazz.name}") }
+			}
+
+			return Supplier {
+				try {
+					clazz.getDeclaredConstructor().newInstance()
+				} catch (e: Exception) {
+					throw RuntimeException("Failed to instantiate ${clazz.name}", e)
+				}
+			}
 		}
 
 		private fun <T> getComponentSupplierInstance(component: WKBaseComponent<*>): Supplier<T> {
