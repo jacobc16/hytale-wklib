@@ -3,6 +3,7 @@
 import com.hypixel.hytale.component.Component
 import com.hypixel.hytale.component.ComponentRegistryProxy
 import com.hypixel.hytale.component.ComponentType
+import com.hypixel.hytale.component.system.ISystem
 import com.hypixel.hytale.server.core.universe.world.storage.ChunkStore
 import com.hypixel.hytale.server.core.universe.world.storage.EntityStore
 import com.walrusking.wklib.logging.WKLogger
@@ -59,22 +60,12 @@ class Components {
 			return internalRegister(clazz, registry!!, types, componentLogger)
 		}
 
-		fun registerSystem(system: WKEntityTickingSystem<out Component<EntityStore>>) {
+		fun registerSystem(system: ISystem<EntityStore>) {
 			systemLogger.info("Registering system: ${system.javaClass.name}")
 			registry?.registerSystem(system)
 		}
 
-		fun registerSystem(system: WKDelayedEntitySystem<out Component<EntityStore>>) {
-			systemLogger.info("Registering delayed system: ${system.javaClass.name}")
-			registry?.registerSystem(system)
-		}
-
-		fun registerSystem(system: WKRefChangeSystem<out Component<EntityStore>>) {
-			systemLogger.info("Registering ref change system: ${system.javaClass.name}")
-			registry?.registerSystem(system)
-		}
-
-		fun <T : WKBaseComponent<EntityStore>, S : WKEntityTickingSystem<T>> registerBoth(
+		fun <T : WKBaseComponent<EntityStore>, S : ISystem<EntityStore>> registerBoth(
 			componentClass: Class<T>,
 			systemClass: Class<S>
 		) {
@@ -86,36 +77,6 @@ class Components {
 				registerSystem(system)
 			} catch (e: Exception) {
 				throw IllegalArgumentException("Failed to instantiate ticking system ${systemClass.name}", e)
-			}
-		}
-
-		fun <T : WKBaseComponent<EntityStore>, S : WKDelayedEntitySystem<T>> registerBoth(
-			componentClass: Class<T>,
-			systemClass: Class<S>
-		) {
-			val componentType = register(componentClass)
-
-			val ctor = systemClass.getDeclaredConstructor(ComponentType::class.java)
-			try {
-				val system = ctor.newInstance(componentType)
-				registerSystem(system)
-			} catch (e: Exception) {
-				throw IllegalArgumentException("Failed to instantiate delayed system ${systemClass.name}", e)
-			}
-		}
-
-		fun <T : WKBaseComponent<EntityStore>, S : WKRefChangeSystem<T>> registerBoth(
-			componentClass: Class<T>,
-			systemClass: Class<S>
-		) {
-			val componentType = register(componentClass)
-
-			val ctor = systemClass.getDeclaredConstructor(ComponentType::class.java)
-			try {
-				val system = ctor.newInstance(componentType)
-				registerSystem(system)
-			} catch (e: Exception) {
-				throw IllegalArgumentException("Failed to instantiate ref change system ${systemClass.name}", e)
 			}
 		}
 
@@ -123,22 +84,12 @@ class Components {
 			return internalRegister(clazz, chunkRegistry!!, blockTypes, blockComponentLogger)
 		}
 
-		fun registerBlockSystem(system: WKBlockEntityTickingSystem<out Component<ChunkStore>>) {
+		fun registerBlockSystem(system: ISystem<ChunkStore>) {
 			blockSystemLogger.info("Registering system: ${system.javaClass.name}")
 			chunkRegistry?.registerSystem(system)
 		}
 
-		fun registerBlockSystem(system: WKBlockDelayedEntitySystem<out Component<ChunkStore>>) {
-			blockSystemLogger.info("Registering delayed system: ${system.javaClass.name}")
-			chunkRegistry?.registerSystem(system)
-		}
-
-		fun registerBlockSystem(system: WKBlockRefChangeSystem<out Component<ChunkStore>>) {
-			blockSystemLogger.info("Registering ref change system: ${system.javaClass.name}")
-			chunkRegistry?.registerSystem(system)
-		}
-
-		fun <T : WKBaseComponent<ChunkStore>, S : WKBlockEntityTickingSystem<T>> registerBlockBoth(
+		fun <T : WKBaseComponent<ChunkStore>, S : ISystem<ChunkStore>> registerBlockBoth(
 			componentClass: Class<T>,
 			systemClass: Class<S>
 		) {
@@ -150,36 +101,6 @@ class Components {
 				registerBlockSystem(system)
 			} catch (e: Exception) {
 				throw IllegalArgumentException("Failed to instantiate ticking system ${systemClass.name}", e)
-			}
-		}
-
-		fun <T : WKBaseComponent<ChunkStore>, S : WKBlockDelayedEntitySystem<T>> registerBlockBoth(
-			componentClass: Class<T>,
-			systemClass: Class<S>
-		) {
-			val componentType = registerBlock(componentClass)
-
-			val ctor = systemClass.getDeclaredConstructor(ComponentType::class.java)
-			try {
-				val system = ctor.newInstance(componentType)
-				registerBlockSystem(system)
-			} catch (e: Exception) {
-				throw IllegalArgumentException("Failed to instantiate delayed system ${systemClass.name}", e)
-			}
-		}
-
-		fun <T : WKBaseComponent<ChunkStore>, S : WKBlockRefChangeSystem<T>> registerBlockBoth(
-			componentClass: Class<T>,
-			systemClass: Class<S>
-		) {
-			val componentType = registerBlock(componentClass)
-
-			val ctor = systemClass.getDeclaredConstructor(ComponentType::class.java)
-			try {
-				val system = ctor.newInstance(componentType)
-				registerBlockSystem(system)
-			} catch (e: Exception) {
-				throw IllegalArgumentException("Failed to instantiate delayed system ${systemClass.name}", e)
 			}
 		}
 
