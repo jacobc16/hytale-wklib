@@ -2,6 +2,7 @@
 
 import com.hypixel.hytale.server.core.Message
 import com.hypixel.hytale.server.core.entity.entities.Player
+import com.hypixel.hytale.server.core.modules.entitystats.EntityStatMap
 import com.hypixel.hytale.server.core.universe.PlayerRef
 import com.hypixel.hytale.server.core.util.NotificationUtil
 import com.walrusking.wklib.utilities.TextFormat
@@ -44,4 +45,13 @@ fun PlayerRef.sendFormattedNotification(message: String) {
 
 fun PlayerRef.sendFormattedNotification(primaryMessage: String, secondaryMessage: String) {
 	sendNotification(TextFormat.format(primaryMessage), TextFormat.format(secondaryMessage))
+}
+
+fun PlayerRef.getStats(): EntityStatMap? {
+	val ref = reference
+	if (ref == null || !ref.isValid) {
+		return null
+	}
+	
+	return ref.getComponent(EntityStatMap.getComponentType())
 }
