@@ -49,26 +49,6 @@ abstract class WKOnDeathSystem : WKBaseOnDeathSystem<WKOnDeathEvent>() {
 	}
 }
 
-abstract class WKPlayerDeathSystem : WKBaseOnDeathSystem<WKPlayerDeathEvent>(
-) {
-	override fun onDeath(event: WKPlayerDeathEvent) {
-
-	}
-
-	override fun createEvent(
-		ref: Ref<EntityStore>,
-		deathComponent: DeathComponent,
-		store: Store<EntityStore>,
-		commandBuffer: CommandBuffer<EntityStore>
-	): WKPlayerDeathEvent {
-		return WKPlayerDeathEvent(ref, deathComponent, store, commandBuffer)
-	}
-
-	override fun getQuery(): Query<EntityStore> {
-		return Query.and(Player.getComponentType())
-	}
-}
-
 open class WKOnDeathEvent(
 	val ref: Ref<EntityStore>,
 	val deathComponent: DeathComponent,
@@ -87,14 +67,4 @@ open class WKOnDeathEvent(
 
 		return ref.getComponent(componentType)
 	}
-}
-
-class WKPlayerDeathEvent(
-	ref: Ref<EntityStore>, deathComponent: DeathComponent, store: Store<EntityStore>,
-	commandBuffer: CommandBuffer<EntityStore>
-) : WKOnDeathEvent(
-	ref, deathComponent,
-	store, commandBuffer
-) {
-	val player: Player? = ref.getComponent(Player.getComponentType())
 }
