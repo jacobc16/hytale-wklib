@@ -4,6 +4,7 @@ import com.hypixel.hytale.builtin.adventure.objectives.events.TreasureChestOpeni
 import com.hypixel.hytale.component.ComponentRegistryProxy
 import com.hypixel.hytale.component.system.ISystem
 import com.hypixel.hytale.event.EventRegistry
+import com.hypixel.hytale.server.core.event.events.BootEvent
 import com.hypixel.hytale.server.core.event.events.ShutdownEvent
 import com.hypixel.hytale.server.core.event.events.player.*
 import com.hypixel.hytale.server.core.universe.world.storage.EntityStore
@@ -15,6 +16,7 @@ class Events {
 
 		val onShutdown = EventManager.create<ShutdownEvent>()
 		val onTreasureChestOpening = EventManager.create<TreasureChestOpeningEvent>()
+		val onBoot = EventManager.create<BootEvent>()
 
 		val onPlayerReady = EventManager.create<WKPlayerReadyEvent>()
 		val onPlayerConnect = EventManager.create<PlayerConnectEvent>()
@@ -37,6 +39,7 @@ class Events {
 						GameEvents::onTreasureChestOpening
 					)
 				},
+				{ reg -> reg.registerGlobal(BootEvent::class.java, GameEvents::onBoot) },
 				{ reg -> reg.registerGlobal(PlayerReadyEvent::class.java, PlayerEvents::onPlayerReady) },
 				{ reg -> reg.registerGlobal(PlayerConnectEvent::class.java, PlayerEvents::onPlayerConnect) },
 				{ reg -> reg.registerGlobal(PlayerDisconnectEvent::class.java, PlayerEvents::onPlayerDisconnect) },

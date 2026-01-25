@@ -1,6 +1,7 @@
 ﻿package com.walrusking.wklib.events
 
 import com.hypixel.hytale.builtin.adventure.objectives.events.TreasureChestOpeningEvent
+import com.hypixel.hytale.server.core.event.events.BootEvent
 import com.hypixel.hytale.server.core.event.events.ShutdownEvent
 
 
@@ -11,5 +12,8 @@ class GameEvents {
 
         fun onTreasureChestOpening(event: TreasureChestOpeningEvent) =
             Events.onTreasureChestOpening.runHandlers(event)
+
+        fun onBoot(event: BootEvent) =
+            Events.onBoot.runHandlers(event)
     }
 }
