@@ -1,27 +1,11 @@
-﻿package com.walrusking.wklib.systems
+﻿package com.walrusking.wklib.systems.block
 
 import com.hypixel.hytale.component.*
 import com.hypixel.hytale.component.query.Query
 import com.hypixel.hytale.component.system.tick.EntityTickingSystem
 import com.hypixel.hytale.server.core.universe.world.storage.ChunkStore
 import com.walrusking.wklib.components.Components
-
-abstract class WKBlockGlobalEntityTickingSystem :
-	EntityTickingSystem<ChunkStore>() {
-
-	override fun tick(
-		p0: Float,
-		p1: Int,
-		p2: ArchetypeChunk<ChunkStore>,
-		p3: Store<ChunkStore>,
-		p4: CommandBuffer<ChunkStore>
-	) {
-		val data = BlockGlobalEntityTickingData(p0, p1, p2, p3, p4)
-		onTick(data)
-	}
-
-	abstract fun onTick(data: BlockGlobalEntityTickingData)
-}
+import com.walrusking.wklib.systems.BaseEntityTickingData
 
 abstract class WKBlockEntityTickingSystem<T : Component<ChunkStore>>(val componentType: ComponentType<ChunkStore, T>) :
 	EntityTickingSystem<ChunkStore>() {

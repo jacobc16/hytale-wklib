@@ -1,4 +1,4 @@
-﻿package com.walrusking.wklib.systems
+﻿package com.walrusking.wklib.systems.block
 
 import com.hypixel.hytale.component.*
 import com.hypixel.hytale.component.query.Query
