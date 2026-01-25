@@ -7,6 +7,9 @@ import com.hypixel.hytale.event.EventRegistry
 import com.hypixel.hytale.server.core.event.events.ShutdownEvent
 import com.hypixel.hytale.server.core.event.events.player.*
 import com.hypixel.hytale.server.core.universe.world.storage.EntityStore
+import com.walrusking.wklib.events.player.PlayerEvents
+import com.walrusking.wklib.events.player.WKPlayerChatEvent
+import com.walrusking.wklib.events.player.WKPlayerReadyEvent
 
 class Events {
 	companion object {
