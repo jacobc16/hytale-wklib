@@ -64,6 +64,16 @@ class Components {
 			registry?.registerSystem(system)
 		}
 
+		fun registerSystem(system: WKDelayedEntitySystem<out Component<EntityStore>>) {
+			systemLogger.info("Registering delayed system: ${system.javaClass.name}")
+			registry?.registerSystem(system)
+		}
+
+		fun registerSystem(system: WKRefChangeSystem<out Component<EntityStore>>) {
+			systemLogger.info("Registering ref change system: ${system.javaClass.name}")
+			registry?.registerSystem(system)
+		}
+
 		fun <T : WKBaseComponent<EntityStore>, S : WKEntityTickingSystem<T>> registerBoth(
 			componentClass: Class<T>,
 			systemClass: Class<S>
@@ -79,12 +89,52 @@ class Components {
 			}
 		}
 
+		fun <T : WKBaseComponent<EntityStore>, S : WKDelayedEntitySystem<T>> registerBoth(
+			componentClass: Class<T>,
+			systemClass: Class<S>
+		) {
+			val componentType = register(componentClass)
+
+			val ctor = systemClass.getDeclaredConstructor(ComponentType::class.java)
+			try {
+				val system = ctor.newInstance(componentType)
+				registerSystem(system)
+			} catch (e: Exception) {
+				throw IllegalArgumentException("Failed to instantiate delayed system ${systemClass.name}", e)
+			}
+		}
+
+		fun <T : WKBaseComponent<EntityStore>, S : WKRefChangeSystem<T>> registerBoth(
+			componentClass: Class<T>,
+			systemClass: Class<S>
+		) {
+			val componentType = register(componentClass)
+
+			val ctor = systemClass.getDeclaredConstructor(ComponentType::class.java)
+			try {
+				val system = ctor.newInstance(componentType)
+				registerSystem(system)
+			} catch (e: Exception) {
+				throw IllegalArgumentException("Failed to instantiate ref change system ${systemClass.name}", e)
+			}
+		}
+
 		fun <C : WKBaseComponent<ChunkStore>> registerBlock(clazz: Class<C>): ComponentType<ChunkStore, C> {
 			return internalRegister(clazz, chunkRegistry!!, blockTypes, blockComponentLogger)
 		}
 
 		fun registerBlockSystem(system: WKBlockEntityTickingSystem<out Component<ChunkStore>>) {
 			blockSystemLogger.info("Registering system: ${system.javaClass.name}")
+			chunkRegistry?.registerSystem(system)
+		}
+
+		fun registerBlockSystem(system: WKBlockDelayedEntitySystem<out Component<ChunkStore>>) {
+			blockSystemLogger.info("Registering delayed system: ${system.javaClass.name}")
+			chunkRegistry?.registerSystem(system)
+		}
+
+		fun registerBlockSystem(system: WKBlockRefChangeSystem<out Component<ChunkStore>>) {
+			blockSystemLogger.info("Registering ref change system: ${system.javaClass.name}")
 			chunkRegistry?.registerSystem(system)
 		}
 
@@ -100,6 +150,36 @@ class Components {
 				registerBlockSystem(system)
 			} catch (e: Exception) {
 				throw IllegalArgumentException("Failed to instantiate ticking system ${systemClass.name}", e)
+			}
+		}
+
+		fun <T : WKBaseComponent<ChunkStore>, S : WKBlockDelayedEntitySystem<T>> registerBlockBoth(
+			componentClass: Class<T>,
+			systemClass: Class<S>
+		) {
+			val componentType = registerBlock(componentClass)
+
+			val ctor = systemClass.getDeclaredConstructor(ComponentType::class.java)
+			try {
+				val system = ctor.newInstance(componentType)
+				registerBlockSystem(system)
+			} catch (e: Exception) {
+				throw IllegalArgumentException("Failed to instantiate delayed system ${systemClass.name}", e)
+			}
+		}
+
+		fun <T : WKBaseComponent<ChunkStore>, S : WKBlockRefChangeSystem<T>> registerBlockBoth(
+			componentClass: Class<T>,
+			systemClass: Class<S>
+		) {
+			val componentType = registerBlock(componentClass)
+
+			val ctor = systemClass.getDeclaredConstructor(ComponentType::class.java)
+			try {
+				val system = ctor.newInstance(componentType)
+				registerBlockSystem(system)
+			} catch (e: Exception) {
+				throw IllegalArgumentException("Failed to instantiate delayed system ${systemClass.name}", e)
 			}
 		}
 

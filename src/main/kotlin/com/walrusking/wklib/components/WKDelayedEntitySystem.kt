@@ -8,7 +8,7 @@ import com.hypixel.hytale.server.core.universe.world.storage.EntityStore
 
 abstract class WKDelayedEntitySystem<T : Component<EntityStore>>(
 	val componentType: ComponentType<EntityStore, T>,
-	intervalSec: Float
+	val intervalSec: Float
 ) :
 	DelayedEntitySystem<EntityStore>(intervalSec) {
 
@@ -34,7 +34,7 @@ abstract class WKDelayedEntitySystem<T : Component<EntityStore>>(
 
 abstract class WKBlockDelayedEntitySystem<T : Component<ChunkStore>>(
 	val componentType: ComponentType<ChunkStore, T>,
-	intervalSec: Float
+	val intervalSec: Float
 ) :
 	DelayedEntitySystem<ChunkStore>(intervalSec) {
 
