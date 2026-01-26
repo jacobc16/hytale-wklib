@@ -6,6 +6,8 @@ import com.hypixel.hytale.server.npc.entities.NPCEntity
 
 /**
  * A class that extends WKDamageEvent to handle NPC-specific damage events with custom logic.
+ *
+ * This is an ECS system.
  */
 abstract class WKNPCDamageEvent : WKDamageEvent() {
 	/**

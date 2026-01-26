@@ -11,6 +11,8 @@ import com.walrusking.wklib.helpers.getComponent
 /**
  * An abstract class that extends WKEntityEventSystem to handle damage events with custom logic.
  *
+ * This is an ECS system.
+ *
  * @property eventType The class type of the Damage event to be handled.
  */
 abstract class WKDamageEvent : WKEntityEventSystem<Damage>(Damage::class.java) {

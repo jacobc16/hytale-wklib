@@ -8,6 +8,8 @@ import com.walrusking.wklib.events.WKDamageEventData
 
 /**
  * A class that extends WKDamageEvent to handle player-specific damage events with custom logic.
+ *
+ * This is an ECS system.
  */
 class WKPlayerDamageEvent : WKDamageEvent() {
 	/**
