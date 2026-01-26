@@ -112,8 +112,9 @@ open class WKOnDeathEvent(
 	fun <T : Component<EntityStore>> getKiller(componentType: ComponentType<EntityStore, T>): T? {
 		val source = deathInfo?.source ?: return null
 
-		val entitySource = source as Damage.EntitySource
-		val ref = entitySource.ref
+		if (source !is Damage.EntitySource) return null
+
+		val ref = source.ref
 
 		return ref.getComponent(componentType)
 	}
