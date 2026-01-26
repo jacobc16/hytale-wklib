@@ -1,6 +1,5 @@
 import groovy.json.JsonOutput
 import groovy.json.JsonSlurper
-import org.codehaus.groovy.runtime.GStringImpl
 import org.jetbrains.kotlin.gradle.dsl.JvmTarget
 import org.jetbrains.kotlin.gradle.tasks.KotlinCompile
 
@@ -8,10 +7,7 @@ plugins {
     id 'java'
     id 'org.jetbrains.gradle.plugin.idea-ext' version '1.3'
     id 'org.jetbrains.kotlin.jvm' version '2.3.0'
-}
-
-ext {
-    hytaleHome = "${System.getProperty("user.home")}/AppData/Roaming/Hytale" as GStringImpl
+    id("org.jetbrains.dokka") version "2.1.0"
 }
 
 java {
@@ -25,21 +21,19 @@ javadoc {
     options.addStringOption('Xdoclint:-missing', '-quiet')
 }
 
-// Adds the Hytale server as a build dependency, allowing you to reference and
-// compile against their code. This requires you to have Hytale installed using
-// the official launcher for now.
-dependencies {
-    implementation(files("$hytaleHome/install/$patchline/package/game/latest/Server/HytaleServer.jar"))
-    implementation "org.jetbrains.kotlin:kotlin-stdlib-jdk8"
-    testImplementation 'org.junit.jupiter:junit-jupiter-api:5.10.0'
-    testRuntimeOnly 'org.junit.jupiter:junit-jupiter-engine:5.10.0'
-    testImplementation "org.jetbrains.kotlin:kotlin-test-junit5:2.3.0"
-}
-
 repositories {
     mavenCentral()
+    maven() {
+        url = uri("https://maven.hytale.com/${patchline}")
+    }
     mavenLocal()
 }
+
+dependencies {
+    compileOnly "com.hypixel.hytale:Server:$hytale_version"
+    implementation "org.jetbrains.kotlin:kotlin-stdlib-jdk8"
+}
+
 
 // Create the working directory to run the server if it does not already exist.
 def serverRunDir = file("$projectDir/run")
@@ -65,28 +59,11 @@ tasks.register('updatePluginManifest') {
 
 // Makes sure the plugin manifest is up to date.
 tasks.named('processResources') {
-    dependsOn 'updatePluginManifest'
+    dependsOn = ['updatePluginManifest']
 }
 
 tasks.withType(Test).configureEach {
     useJUnitPlatform()
-}
-
-// Creates a run configuration in IDEA that will run the Hytale server with
-// your plugin and the default assets.
-idea.project.settings.runConfigurations {
-    'HytaleServer'(org.jetbrains.gradle.ext.Application) {
-        mainClass = 'com.hypixel.hytale.Main'
-        moduleName = project.idea.module.name + '.main'
-        programParameters = "--allow-op --assets=$hytaleHome/install/$patchline/package/game/latest/Assets.zip"
-        if (includes_pack.toBoolean()) {
-            programParameters += " --mods=${sourceSets.main.java.srcDirs.first().parentFile.absolutePath}"
-        }
-        if (load_user_mods.toBoolean()) {
-            programParameters += " --mods=$hytaleHome/UserData/Mods"
-        }
-        workingDirectory = serverRunDir.absolutePath
-    }
 }
 
 tasks.withType(JavaCompile).configureEach {
@@ -136,4 +113,30 @@ jar {
         configurations.runtimeClasspath.findAll { it.name.startsWith('kotlin-stdlib') }.collect { zipTree(it) }
     }
     exclude ".idea/**"
+}
+
+def mods_directory= project.hasProperty('mods_directory') ? file(project.property('mods_directory').toString()) : file("$projectDir/run/mods")
+
+def autoCopyMod = project.hasProperty('auto_copy_mod') ? project.property('auto_copy_mod').toString().toBoolean() : false
+
+tasks.register('copyJar', Copy) {
+    onlyIf { autoCopyMod }
+    dependsOn tasks.named('jar')
+    from { tasks.named('jar').get().archiveFile.get().asFile }
+    into { mods_directory }
+    doFirst {
+        println "Resolved `mods_directory` -> ${mods_directory.path}"
+        if (!mods_directory.exists() || !mods_directory.isDirectory()) {
+            throw new GradleException("Mods directory does not exist at ${mods_directory.path}")
+        }
+    }
+    doLast {
+        println "Copied ${tasks.named('jar').get().archiveFile.get().asFile.name} -> ${mods_directory.path}"
+    }
+}
+
+if (autoCopyMod) {
+    tasks.named('build') {
+        finalizedBy tasks.named('copyJar')
+    }
 }

@@ -6,8 +6,18 @@ import com.hypixel.hytale.component.system.ISystem
 import com.hypixel.hytale.event.EventRegistry
 import com.hypixel.hytale.server.core.event.events.ShutdownEvent
 import com.hypixel.hytale.server.core.event.events.player.*
+import com.hypixel.hytale.server.core.universe.world.events.AddWorldEvent
+import com.hypixel.hytale.server.core.universe.world.events.RemoveWorldEvent
+import com.hypixel.hytale.server.core.universe.world.events.StartWorldEvent
 import com.hypixel.hytale.server.core.universe.world.storage.EntityStore
+import com.walrusking.wklib.events.player.PlayerEvents
+import com.walrusking.wklib.events.player.WKPlayerChatEvent
+import com.walrusking.wklib.events.player.WKPlayerReadyEvent
 
+/**
+ * The Events class is responsible for initializing and managing event registrations
+ * and providing access to various game events.
+ */
 class Events {
 	companion object {
 		private var eventRegistry: EventRegistry? = null
@@ -15,6 +25,9 @@ class Events {
 
 		val onShutdown = EventManager.create<ShutdownEvent>()
 		val onTreasureChestOpening = EventManager.create<TreasureChestOpeningEvent>()
+		val onWorldAdded = EventManager.create<AddWorldEvent>()
+		var onWorldRemoved = EventManager.create<RemoveWorldEvent>()
+		val onWorldStarted = EventManager.create<StartWorldEvent>()
 
 		val onPlayerReady = EventManager.create<WKPlayerReadyEvent>()
 		val onPlayerConnect = EventManager.create<PlayerConnectEvent>()
@@ -37,6 +50,9 @@ class Events {
 						GameEvents::onTreasureChestOpening
 					)
 				},
+				{ reg -> reg.registerGlobal(AddWorldEvent::class.java, GameEvents::onWorldAdded) },
+				{ reg -> reg.registerGlobal(RemoveWorldEvent::class.java, GameEvents::onWorldRemoved) },
+				{ reg -> reg.registerGlobal(StartWorldEvent::class.java, GameEvents::onWorldStarted) },
 				{ reg -> reg.registerGlobal(PlayerReadyEvent::class.java, PlayerEvents::onPlayerReady) },
 				{ reg -> reg.registerGlobal(PlayerConnectEvent::class.java, PlayerEvents::onPlayerConnect) },
 				{ reg -> reg.registerGlobal(PlayerDisconnectEvent::class.java, PlayerEvents::onPlayerDisconnect) },
@@ -62,6 +78,11 @@ class Events {
 			}
 		}
 
+		/**
+		 * Registers an ECS system with the entity store registry.
+		 *
+		 * @param system The system to be registered.
+		 */
 		fun registerSystem(system: ISystem<EntityStore>) {
 			entityStoreRegistry?.registerSystem(system)
 		}

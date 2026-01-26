@@ -1,0 +1,13 @@
+- Guides
+    - [Commands](guides/commands.md)
+    - [Components](guides/components.md)
+    - [Configs](guides/configs.md)
+    - [Damage Events](guides/damage-events.md)
+    - [Death Events](guides/death-events.md)
+    - [Events](guides/events.md)
+    - [Logging](guides/logging.md)
+    - [Persistent Player Data](guides/persistent-player-data.md)
+    - [Systems](guides/systems.md)
+    - [Text Formatting](guides/text-formatting.md)
+- Api Reference
+    - [API Overview](https://jacobc16.github.io/hytale-wklib/api)
