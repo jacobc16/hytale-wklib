@@ -22,6 +22,24 @@ class BlockDamageTest : WKBlockDamageEvent() {
 }
 ```
 
+## Creating a Block Use Event
+
+You can create a block pre-use / post-use event by extending the `WKPreUseBlockEvent` or `WKPostUseBlockEvent` class and overriding the `onUse` method.
+
+```kotlin
+class BlockUseTest : WKPreUseBlockEvent() {
+    override fun onUse(event: WKPreUseBlockEventData) {
+        
+    }
+}
+
+class BlockUsePostTest : WKPostUseBlockEvent() {
+    override fun onUse(event: WKPostUseBlockEventData) {
+        
+    }
+}
+```
+
 ## Register Events
 
 You can register all block events in the same way:
@@ -30,5 +48,7 @@ You can register all block events in the same way:
 override fun setup() {
 	Events.registerSystem(BlockBreakTest())
     Events.registerSystem(BlockDamageTest())
+    Events.registerSystem(BlockUseTest())
+    Events.registerSystem(BlockUsePostTest())
 }
 ```
