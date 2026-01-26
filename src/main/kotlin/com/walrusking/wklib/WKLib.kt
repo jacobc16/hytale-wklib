@@ -8,7 +8,7 @@ import com.walrusking.wklib.plugins.WKPlugin
 
 class WKLib(init: JavaPluginInit) : WKPlugin("WKLib", init) {
 	override fun setup() {
-		LOGGER.info("Initializing WKLib...")
+		logger.info("Initializing WKLib...")
 
 		Components.init(entityStoreRegistry, chunkStoreRegistry)
 		Events.init(eventRegistry, entityStoreRegistry)
