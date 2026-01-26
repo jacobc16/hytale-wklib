@@ -97,7 +97,7 @@ override fun setup() {
 Create a new ECS system by extending the `WKEntityEventSystem` class:
 
 ```kotlin
-class TestSystem(eventType: Class<CraftRecipeEvent.Pre>) : WKEntityEventSystem<CraftRecipeEvent.Pre>(eventType) {
+class TestSystem : WKEntityEventSystem<CraftRecipeEvent.Pre>(CraftRecipeEvent.Pre::class.java) {
 	override fun onExecute(data: EventData<CraftRecipeEvent.Pre>) {
 		WKLogger("TestSystem").info("CraftRecipeEvent.Pre fireed for recipe: ${data.event.craftedRecipe.id}")
 	}
@@ -109,6 +109,6 @@ Register the ECS system in your main plugin class:
 
 ```kotlin
 override fun setup() {
-	Events.registerSystem(TestSystem(CraftRecipeEvent.Pre::class.java))
+	Events.registerSystem(TestSystem())
 }
 ```

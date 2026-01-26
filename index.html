@@ -44,9 +44,7 @@
       plugins: [
         function (hook, vm) {
           hook.afterEach(html => {
-            url =
-                    'https://github.com/jacobc16/hytale-wklib/tree/main/docs/' +
-                    vm.route.file;
+            const url = 'https://github.com/jacobc16/hytale-wklib/tree/main/docs/' + vm.route.file;
 
             const footerHTML = [
               '<hr>',
