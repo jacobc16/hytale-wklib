@@ -8,3 +8,5 @@
     - [Persistent Player Data](guides/persistent-player-data.md)
     - [Systems](guides/systems.md)
     - [Text Formatting](guides/text-formatting.md)
+- Api Reference
+    - [API Overview](https://jacobc16.github.io/hytale-wklib/api)
