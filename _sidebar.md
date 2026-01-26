@@ -1,4 +1,5 @@
 - Guides
+    - [Block Events](guides/block-events.md)
     - [Commands](guides/commands.md)
     - [Components](guides/components.md)
     - [Configs](guides/configs.md)
