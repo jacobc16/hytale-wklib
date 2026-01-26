@@ -53,7 +53,7 @@ abstract class WKBaseOnDeathSystem<T : WKOnDeathEvent>(
 /**
  * An abstract class that extends WKBaseOnDeathSystem to handle death events with custom logic.
  */
-abstract class WKOnDeathSystem : WKBaseOnDeathSystem<WKOnDeathEvent>() {
+abstract class WKDeathSystem : WKBaseOnDeathSystem<WKOnDeathEvent>() {
 	/**
 	 * Method to be overridden by subclasses to implement custom death event handling logic.
 	 *
