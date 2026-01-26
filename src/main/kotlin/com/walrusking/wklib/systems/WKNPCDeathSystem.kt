@@ -39,6 +39,17 @@ abstract class WKNPCDeathSystem : WKBaseOnDeathSystem<WKNPCDeathEvent>() {
 	}
 }
 
+/**
+ * Data class encapsulating information about an NPC death event.
+ *
+ * @constructor
+ * Creates a new WKNPCDeathEvent.
+ *
+ * @param ref The Ref of the EntityStore where the death event occurred.
+ * @param deathComponent The DeathComponent associated with the entity that died.
+ * @param store The Store of EntityStore where the event is being processed.
+ * @param commandBuffer The CommandBuffer for making changes to the EntityStore.
+ */
 class WKNPCDeathEvent(
 	ref: Ref<EntityStore>,
 	deathComponent: DeathComponent,
